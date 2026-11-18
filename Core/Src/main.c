@@ -24,7 +24,7 @@
 #include "FreeRTOS.h"
 #include "stm32f1xx_hal_gpio.h"
 #include "task.h"
-#include"Key_Task.h"
+#include"key_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,7 +93,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  xTaskCreate(key1task  ,"Key1", 128, NULL, 1, NULL);
+  xTaskCreate(keytask  ,"Key", 128, NULL, 1, NULL);
   vTaskStartScheduler();
   /* USER CODE END 2 */
 
@@ -194,12 +194,20 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED3_Pin|LED1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : Key_UP_Pin Key_DOWN_Pin Key3_Pin Key4_Pin
+                           Key1_Pin */
+  GPIO_InitStruct.Pin = Key_UP_Pin|Key_DOWN_Pin|Key3_Pin|Key4_Pin
+                          |Key1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED3_Pin LED1_Pin */
   GPIO_InitStruct.Pin = LED3_Pin|LED1_Pin;
@@ -208,11 +216,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : Key1_Pin */
-  GPIO_InitStruct.Pin = Key1_Pin;
+  /*Configure GPIO pin : Key2_Pin */
+  GPIO_InitStruct.Pin = Key2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(Key1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(Key2_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

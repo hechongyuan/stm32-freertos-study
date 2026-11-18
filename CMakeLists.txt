@@ -19,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Set the project name
-set(CMAKE_PROJECT_NAME 1.2_key)
+set(CMAKE_PROJECT_NAME experiment1.3)
 
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -51,6 +51,9 @@ file(GLOB_RECURSE FREERTOS_SOURCES CONFIGURE_DEPENDS
 )
 
 # 用户自己写的任务/驱动代码：递归收集 User 目录下所有 .c
+# 递归 = 以后在 User 下再新建子文件夹（如 User/keys、User/task），
+# 只要里面有 .c 文件就会自动参与编译，不需要再改这里的源文件列表；
+# CONFIGURE_DEPENDS 保证新增/删除 .c 后构建时会自动重新运行 CMake。
 file(GLOB_RECURSE USER_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/User/*.c
 )
@@ -71,14 +74,18 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add include paths
+# 头文件目录需要在这里逐个列出（和源文件的自动递归收集不同），
+# 这样代码里才能直接写 #include "key.h" / #include "key_task.h"，
+# 而不用写 #include "User/keys/key.h" 这样的长路径。
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # FreeRTOS 头文件目录（FreeRTOS.h、task.h、portmacro.h 等）
     ${CMAKE_CURRENT_SOURCE_DIR}/FreeRTOS/Inc
-    # 用户头文件目录（Key_Task.h 在 User/Task 下）
-    ${CMAKE_CURRENT_SOURCE_DIR}/User
-    ${CMAKE_CURRENT_SOURCE_DIR}/User/Task
+    # 用户头文件目录
+    ${CMAKE_CURRENT_SOURCE_DIR}/User           # User 根目录
+    ${CMAKE_CURRENT_SOURCE_DIR}/User/task      # 任务层：key_task.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/User/keys      # 按键驱动层：key1.h、key_down.h 等
     ${CMAKE_CURRENT_SOURCE_DIR}/Drivers
-    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/key
+    ${CMAKE_CURRENT_SOURCE_DIR}/Drivers/key    # 旧版按键驱动：key.h
     # Add user defined include paths
 )
 
