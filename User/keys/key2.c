@@ -1,6 +1,9 @@
 #include "key2.h"
+#include "key.h"
 #include "main.h"
-
+#include "stm32f1xx_hal_def.h"
+#include <string.h>
+#include"buzzer_task.h"
 KeyHandle_Typedef hkey2;
 extern UART_HandleTypeDef huart1;
 void key2ClickCallBack(void);
@@ -23,6 +26,6 @@ void key2_scan(void)
 void key2ClickCallBack(void)
 {
 
-    HAL_UART_Transmit(&huart1,(const uint8_t*)"key2 clicked.\n",strlen("key2 clicked.\n"),HAL_MAX_DELAY);  
+    Buzzer_beep();  
 
 }
