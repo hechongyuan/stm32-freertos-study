@@ -19,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Set the project name
-set(CMAKE_PROJECT_NAME p3.3)
+set(CMAKE_PROJECT_NAME p4.1)
 
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -97,9 +97,24 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
 # Remove wrong libob.a library dependency when using cpp files
 list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
 
+# 厂家预编译 LCD 驱动库（只提供 Drivers/lcd.a + Drivers/lcd.h，没有源码）
+# 用 IMPORTED 目标把这个“现成的静态库”描述给 CMake：
+#   IMPORTED_LOCATION              —— lcd.a 的绝对路径（文件名不是 liblcd.a，不能直接写 -llcd）
+#   INTERFACE_INCLUDE_DIRECTORIES  —— 链接 lcd 时自动把 Drivers 加入头文件搜索路径
+#   INTERFACE_LINK_LIBRARIES       —— lcd.a 内部用到 ceil()，依赖 libm；
+#                                     写在这里能保证链接顺序是“先 lcd 后 m”
+#                                     （静态库顺序：被依赖的库要放在后面）
+add_library(lcd STATIC IMPORTED)
+set_target_properties(lcd PROPERTIES
+    IMPORTED_LOCATION              "${CMAKE_CURRENT_SOURCE_DIR}/Drivers/lcd.a"
+    INTERFACE_INCLUDE_DIRECTORIES  "${CMAKE_CURRENT_SOURCE_DIR}/Drivers"
+    INTERFACE_LINK_LIBRARIES       m
+)
+
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
 
     # Add user defined libraries
+    lcd     # 厂家 LCD 驱动库 Drivers/lcd.a（对应头文件 Drivers/lcd.h）
 )

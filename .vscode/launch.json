@@ -1,0 +1,42 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "stlinkgdbtarget",
+      "request": "launch",
+      "name": "STM32Cube p4.1 (ST-Link, port 6124)",
+      "origin": "snippet",
+      "cwd": "${workspaceFolder}",
+      "preBuild": "${command:st-stm32-ide-debug-launch.build}",
+      "runEntry": "main",
+      "imagesAndSymbols": [
+        {
+          "imageFileName": "${workspaceFolder}/build/Debug/p4.1.elf"
+        }
+      ],
+      "deviceName": "STM32F103RCT6",
+      "deviceCore": "Cortex-M3",
+      "deviceTrustzone": "TZ-disabled",
+      "svdPath": "C:\\Users\\贺重元\\AppData\\Local\\stm32cube\\packs\\STMicroelectronics\\stm32f1xx_dfp\\1.2.0\\SVD\\STM32F103.svd",
+      "serverApID": "0",
+      "quickReset": [
+        "monitor reset",
+        "tbreak main",
+        "continue"
+      ],
+      "serverReset": "Connect under reset",
+      "serverInterface": "SWD",
+      "serverInterfaceFrequency": "Auto",
+      "serverShared": false,
+      "serverHaltAllCores": false,
+      "serverHost": "localhost",
+      "serverPort": "6124",
+      "openGdbConsole": false,
+      "faultDivByZero": true,
+      "faultUnalignedAccess": false,
+      "faultHaltOnException": true,
+      "deviceDebugInLowPower": true,
+      "deviceStopWDGOnHalt": true
+    }
+  ]
+}

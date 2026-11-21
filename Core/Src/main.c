@@ -113,7 +113,14 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
-  Lcd_Init();
+  /* 注意：Lcd_Init() 不能在这里调用！
+   * 它内部的 SendData() 用 DMA + FreeRTOS 信号量等待发送完成，
+   * 而此刻 vTaskStartScheduler() 还没执行（调度器未启动）。
+   * DMA 完成中断里的 portYIELD_FROM_ISR() 会请求 PendSV 上下文切换，
+   * 但 FreeRTOS 的 PendSV 使用的是 PSP，调度器启动前 PSP 还是 0，
+   * 第一次上下文切换就会访问非法地址 → HardFault，程序直接跑飞。
+   * 所以初始化放到 vLcdTask 里（调度器启动后）执行。 */
+  // Lcd_Init();
   xTaskCreate(keytask  ,"Key", 128, NULL, 3, NULL);
   xTaskCreate(vBuzzerTask,  "Buzzer", 64,NULL, 1, NULL);
   xTaskCreate(vLcdTask, "LCD",256, NULL,2, NULL);
@@ -195,7 +202,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
